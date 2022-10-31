@@ -16,10 +16,6 @@ namespace Lab2
         {
             hashTable = new KeyValuePair[capacity];
         }
-        public KeyValuePair Table(int i)
-        {
-            return hashTable[i];
-        }
 
         public int GetMyHashCode(int key)
         {
