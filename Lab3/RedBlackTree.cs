@@ -54,7 +54,6 @@ namespace Lab3
 
             newItme.left = current;
             current.parent = newItme;
-
         }
 
         private void RightRotate(RBNode current)
@@ -184,12 +183,14 @@ namespace Lab3
             }
 
             InsertFixUp(newItem);
+
         }
         private void InOrderDisplay(RBNode current)
         {
             if (current != null)
             {
                 InOrderDisplay(current.left);
+
                 if (current.color == Color.Black)
                 {
                     Console.Write("({0}, {1}) ", current.value, current.color);
@@ -254,12 +255,10 @@ namespace Lab3
                         newItem.parent.parent.color = Color.Red;
                         LeftRotate(newItem.parent.parent);
                     }
-
                 }
 
                 if (newItem == _rootNode)
                     break;
-
             }
 
             _rootNode.color = Color.Black;
@@ -267,7 +266,6 @@ namespace Lab3
 
         public void Remove(int key)
         {
-            // first find the node in the tree to delete and assign to item pointer/reference
             RBNode item = Find(key);
             RBNode x = null;
             RBNode y = null;
@@ -320,104 +318,104 @@ namespace Lab3
 
         }
 
-        /// Checks the tree for any violations after deletion and performs a fix
-        private void RemoveFixUp(RBNode X)
+        private void RemoveFixUp(RBNode newItem)
         {
-
-            while (X != null && X != _rootNode && X.color == Color.Black)
+            while (newItem != null && newItem != _rootNode && newItem.color == Color.Black)
             {
-                if (X == X.parent.left)
+                if (newItem == newItem.parent.left)
                 {
-                    RBNode W = X.parent.right;
+                    RBNode y = newItem.parent.right;
 
-                    if (W.color == Color.Red)
+                    if (y.color == Color.Red)
                     {
-                        W.color = Color.Black; 
-                        X.parent.color = Color.Red;
-                        LeftRotate(X.parent);
-                        W = X.parent.right;
+                        y.color = Color.Black;
+                        newItem.parent.color = Color.Red;
+                        LeftRotate(newItem.parent);
+                        y = newItem.parent.right;
                     }
 
-                    if (W.left.color == Color.Black && W.right.color == Color.Black)
+                    if (y.left.color == Color.Black && y.right.color == Color.Black)
                     {
-                        W.color = Color.Red;
-                        X = X.parent;
+                        y.color = Color.Red;
+                        newItem = newItem.parent;
                     }
-                    else if (W.right.color == Color.Black)
+                    else if (y.right.color == Color.Black)
                     {
-                        // Case 3
-                        W.left.color = Color.Black;
-                        W.color = Color.Red;
-                        RightRotate(W);
-                        W = X.parent.right;
+                        y.left.color = Color.Black;
+                        y.color = Color.Red;
+                        RightRotate(y);
+                        y = newItem.parent.right;
                     }
 
-                    W.color = X.parent.color;
-                    X.parent.color = Color.Black;
-                    W.right.color = Color.Black;
-                    LeftRotate(X.parent);
-                    X = _rootNode;
+                    y.color = newItem.parent.color;
+                    newItem.parent.color = Color.Black;
+                    y.right.color = Color.Black;
+                    LeftRotate(newItem.parent);
+                    newItem = _rootNode;
                 }
                 else
                 {
-                    RBNode W = X.parent.left;
+                    RBNode y = newItem.parent.left;
 
-                    if (W.color == Color.Red)
+                    if (y.color == Color.Red)
                     {
-                        W.color = Color.Black;
-                        X.parent.color = Color.Red;
-                        RightRotate(X.parent);
-                        W = X.parent.left;
+                        y.color = Color.Black;
+                        newItem.parent.color = Color.Red;
+                        RightRotate(newItem.parent);
+                        y = newItem.parent.left;
                     }
 
-                    if (W.right.color == Color.Black && W.left.color == Color.Black)
+                    if (y.right.color == Color.Black && y.left.color == Color.Black)
                     {
-                        W.color = Color.Black;
-                        X = X.parent;
+                        y.color = Color.Black;
+                        newItem = newItem.parent;
                     }
-                    else if (W.left.color == Color.Black)
+                    else if (y.left.color == Color.Black)
                     {
-                        W.right.color = Color.Black;
-                        W.color = Color.Red;
-                        LeftRotate(W);
-                        W = X.parent.left;
+                        y.right.color = Color.Black;
+                        y.color = Color.Red;
+                        LeftRotate(y);
+                        y = newItem.parent.left;
                     }
 
-                    W.color = X.parent.color;
-                    X.parent.color = Color.Black;
-                    W.left.color = Color.Black;
-                    RightRotate(X.parent);
-                    X = _rootNode;
+                    y.color = newItem.parent.color;
+                    newItem.parent.color = Color.Black;
+                    y.left.color = Color.Black;
+                    RightRotate(newItem.parent);
+                    newItem = _rootNode;
                 }
             }
-            if (X != null)
-                X.color = Color.Black;
-        }
-        private RBNode Minimum(RBNode X)
-        {
-            while (X.left.left != null)
-                X = X.left;
+            if (newItem != null)
+                newItem.color = Color.Black;
 
-            if (X.left.right != null)
-                X = X.left.right;
-
-            return X;
         }
-        private RBNode Successor(RBNode X)
+        private RBNode Minimum(RBNode newItem)
         {
-            if (X.left != null)
+            while (newItem.left.left != null)
+                newItem = newItem.left;
+
+            if (newItem.left.right != null)
+                newItem = newItem.left.right;
+
+            return newItem;
+        }
+        private RBNode Successor(RBNode newItem)
+        {
+            if (newItem.left != null)
             {
-                return Minimum(X);
+                return Minimum(newItem);
             }
             else
             {
-                RBNode Y = X.parent;
-                while (Y != null && X == Y.right)
+                RBNode y = newItem.parent;
+
+                while (y != null && newItem == y.right)
                 {
-                    X = Y;
-                    Y = Y.parent;
+                    newItem = y;
+                    y = y.parent;
                 }
-                return Y;
+
+                return y;
             }
         }
     }
