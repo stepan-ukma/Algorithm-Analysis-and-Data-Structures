@@ -10,6 +10,7 @@ namespace Lab3
         public RBNode parent;
         public Color color;
 
+        public RBNode() { }
         public RBNode(int value) 
         { 
             this.value = value; 

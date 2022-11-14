@@ -5,12 +5,7 @@ namespace Lab3
     public class RedBlackTree : IRedBlackTree
     {
         private RBNode _rootNode;
-        private int _nodeCount;
-
-        public int NodeCount
-        {
-            get { return _nodeCount; }
-        }
+        public static RBNode leaf;
 
         public Boolean IsEmpty
         {
@@ -32,70 +27,63 @@ namespace Lab3
             }
         }
 
-        private void LeftRotate(RBNode X)
+        private void LeftRotate(RBNode current)
         {
-            RBNode Y = X.right; // set Y
-            X.right = Y.left; // turn Y's left subtree into X's right subtree
-            if (Y.left != null)
+            RBNode newItme = current.right;
+            current.right = newItme.left;
+
+            if (newItme.left != leaf)
             {
-                Y.left.parent = X;
-            }
-            if (Y != null)
-            {
-                Y.parent = X.parent; // link X's parent to Y
-            }
-            if (X.parent == null)
-            {
-                _rootNode = Y;
-            }
-            if (X.parent != null)
-            {
-                if (X == X.parent.left)
-                {
-                    X.parent.left = Y;
-                }
-                else
-                {
-                    X.parent.right = Y;
-                }
+                newItme.left.parent = current;
             }
 
-            Y.left = X; // put X on Y's left
-            if (X != null)
+            newItme.parent = current.parent;
+
+            if (current.parent == leaf)
             {
-                X.parent = Y;
+                _rootNode = newItme;
             }
+            else if (current.parent.left == current)
+            {
+                current.parent.left = newItme;
+            }
+            else
+            {
+                current.parent.right = newItme;
+            }
+
+            newItme.left = current;
+            current.parent = newItme;
 
         }
 
-        private void RightRotate(RBNode Y)
+        private void RightRotate(RBNode current)
         {
-            // Right rotate is simply mirror code from left rotate
-            RBNode X = Y.left;
-            Y.left = X.right;
+            RBNode newItem = current.left;
+            current.left = newItem.right;
 
-            if (X.right != null)
-                X.right.parent = Y;
-
-            if (X != null)
-                X.parent = Y.parent;
-
-            if (Y.parent == null) 
-                _rootNode = X;
-
-            if (Y.parent != null)
+            if (newItem.right != leaf)
             {
-                if (Y == Y.parent.right)
-                    Y.parent.right = X;
-
-                if (Y == Y.parent.left)
-                    Y.parent.left = X;
+                newItem.right.parent = current;
             }
-            
-            X.right = Y; // put Y on X's right
 
-            if (Y != null)
-                Y.parent = X;
+            newItem.parent = current.parent;
+
+            if (current.parent == leaf)
+            {
+                _rootNode = newItem;
+            }
+            else if (current.parent.right == current)
+            {
+                current.parent.right = newItem;
+            }
+            else
+            {
+                current.parent.left = newItem;
+            }
+
+            newItem.right = current;
+            current.parent = newItem;
         }
 
         public void DisplayTree()
@@ -136,59 +124,72 @@ namespace Lab3
 
         public void Insert(int item)
         {
-            RBNode newItem = new RBNode(item);
+            RBNode newItem = new RBNode();
+            newItem.parent = null;
+            newItem.value = item;
+            newItem.left = leaf;
+            newItem.right = leaf;
+            newItem.color = Color.Red;
+            RBNode y = leaf;
+            RBNode r = _rootNode;
 
-            if (_rootNode == null)
+            while (r != leaf)
+            {
+                y = r;
+
+                if (newItem.value.CompareTo(r.value) < 0)
+                {
+                    r = r.left;
+                }
+                else if (newItem.value.CompareTo(r.value) > 0)
+                {
+                    r = r.right;
+                }
+                else if (newItem.value.CompareTo(r.value) == 0)
+                {
+                    Console.WriteLine($"{item} is already in the tree");
+                    return;
+                }
+            }
+
+            newItem.parent = y;
+
+            if (y == leaf)
             {
                 _rootNode = newItem;
-                _rootNode.color = Color.Black;
-                _nodeCount++;
+            }
+            else if (newItem.value.CompareTo(y.value) < 0)
+            {
+                y.left = newItem;
+            }
+            else if (newItem.value.CompareTo(y.value) > 0)
+            {
+                y.right = newItem;
+            }
+            else if (newItem.value.CompareTo(y.value) == 0)
+            {
+                Console.WriteLine($"{item} is already in the tree");
                 return;
             }
 
-            RBNode Y = null;
-            RBNode X = _rootNode;
-
-            while (X != null)
+            if (newItem.parent == leaf)
             {
-                Y = X;
-                if (newItem.value < X.value)
-                {
-                    X = X.left;
-                }
-                else
-                {
-                    X = X.right;
-                }
+                newItem.color = Color.Black;
+                return;
             }
 
-            newItem.parent = Y;
-
-            if (Y == null)
+            if (newItem.parent.parent == leaf)
             {
-                _rootNode = newItem;
-            }
-            else if (newItem.value < Y.value)
-            {
-                Y.left = newItem;
-            }
-            else
-            {
-                Y.right = newItem;
+                return;
             }
 
-            newItem.left = null;
-            newItem.right = null;
-            newItem.color = Color.Red; // color the new node red
-            InsertFixUp(newItem);      // check for violations and fix
-            _nodeCount++;
+            InsertFixUp(newItem);
         }
         private void InOrderDisplay(RBNode current)
         {
             if (current != null)
             {
                 InOrderDisplay(current.left);
-
                 if (current.color == Color.Black)
                 {
                     Console.Write("({0}, {1}) ", current.value, current.color);
@@ -201,74 +202,75 @@ namespace Lab3
                 InOrderDisplay(current.right);
             }
         }
-        private void InsertFixUp(RBNode item)
+        private void InsertFixUp(RBNode newItem)
         {
-            // Checks Red-Black Tree properties
-            while (item != _rootNode && item.parent.color == Color.Red)
-            {
-                /*We have a violation*/
-                if (item.parent == item.parent.parent.left)
-                {
-                    RBNode Y = item.parent.parent.right;
-                    if (Y != null && Y.color == Color.Red) // Case 1: uncle is red
-                    {
-                        item.parent.color = Color.Black;
-                        Y.color = Color.Black;
-                        item.parent.parent.color = Color.Red;
-                        item = item.parent.parent;
-                    }
-                    else // Case 2: uncle is black
-                    {
-                        if (item == item.parent.right)
-                        {
-                            item = item.parent;
-                            LeftRotate(item);
-                        }
-                        // Case 3: recolor & rotate
-                        item.parent.color = Color.Black;
-                        item.parent.parent.color = Color.Red;
-                        RightRotate(item.parent.parent);
-                    }
+            RBNode y;
 
+            while (newItem != _rootNode && newItem.parent.color == Color.Red)
+            {
+                if (newItem.parent == newItem.parent.parent.left)
+                {
+                    y = newItem.parent.parent.right;
+
+                    if (y.color == Color.Red && y != null)
+                    {
+                        newItem.parent.color = Color.Black;
+                        y.color = Color.Black;
+                        newItem.parent.parent.color = Color.Red;
+                        newItem = newItem.parent.parent;
+                    }
+                    else
+                    {
+                        if (newItem == newItem.parent.right)
+                        {
+                            newItem = newItem.parent;
+                            LeftRotate(newItem);
+                        }
+                        newItem.parent.color = Color.Black;
+                        newItem.parent.parent.color = Color.Red;
+                        RightRotate(newItem.parent.parent);
+                    }
                 }
                 else
                 {
-                    // mirror image of code above
-                    RBNode X = null;
 
-                    X = item.parent.parent.left;
-                    if (X != null && X.color == Color.Black) // Case 1
+                    y = newItem.parent.parent.left;
+
+                    if (y != null && y.color == Color.Red)
                     {
-                        item.parent.color = Color.Red;
-                        X.color = Color.Red;
-                        item.parent.parent.color = Color.Black;
-                        item = item.parent.parent;
+                        newItem.parent.color = Color.Black;
+                        y.color = Color.Black;
+                        newItem.parent.parent.color = Color.Red;
+                        newItem = newItem.parent.parent;
                     }
-                    else // Case 2
+                    else
                     {
-                        if (item == item.parent.left)
+                        if (newItem == newItem.parent.left)
                         {
-                            item = item.parent;
-                            RightRotate(item);
+                            newItem = newItem.parent;
+                            RightRotate(newItem);
                         }
-                        // Case 3: recolor & rotate
-                        item.parent.color = Color.Black;
-                        item.parent.parent.color = Color.Red;
-                        LeftRotate(item.parent.parent);
-
+                        newItem.parent.color = Color.Black;
+                        newItem.parent.parent.color = Color.Red;
+                        LeftRotate(newItem.parent.parent);
                     }
 
                 }
-                _rootNode.color = Color.Black; // re-color the root black as necessary
+
+                if (newItem == _rootNode)
+                    break;
+
             }
+
+            _rootNode.color = Color.Black;
         }
 
         public void Remove(int key)
         {
             // first find the node in the tree to delete and assign to item pointer/reference
             RBNode item = Find(key);
-            RBNode X = null;
-            RBNode Y = null;
+            RBNode x = null;
+            RBNode y = null;
 
             if (item == null)
             {
@@ -277,46 +279,45 @@ namespace Lab3
             }
             if (item.left == null || item.right == null)
             {
-                Y = item;
+                y = item;
             }
             else
             {
-                Y = Successor(item);
+                y = Successor(item);
             }
-            if (Y.left != null)
+            if (y.left != null)
             {
-                X = Y.left;
-            }
-            else
-            {
-                X = Y.right;
-            }
-            if (X != null)
-            {
-                X.parent = Y;
-            }
-            if (Y.parent == null)
-            {
-                _rootNode = X;
-            }
-            else if (Y == Y.parent.left)
-            {
-                Y.parent.left = X;
+                x = y.left;
             }
             else
             {
-                Y.parent.left = X;
+                x = y.right;
             }
-            if (Y != item)
+            if (x != null)
             {
-                item.value = Y.value;
+                x.parent = y;
             }
-            if (Y.color == Color.Black)
+            if (y.parent == null)
             {
-                RemoveFixUp(X);
+                _rootNode = x;
+            }
+            else if (y == y.parent.left)
+            {
+                y.parent.left = x;
+            }
+            else
+            {
+                y.parent.left = x;
+            }
+            if (y != item)
+            {
+                item.value = y.value;
+            }
+            if (y.color == Color.Black)
+            {
+                RemoveFixUp(x);
             }
 
-            _nodeCount--;
         }
 
         /// Checks the tree for any violations after deletion and performs a fix
@@ -331,7 +332,6 @@ namespace Lab3
 
                     if (W.color == Color.Red)
                     {
-                        // Case 1
                         W.color = Color.Black; 
                         X.parent.color = Color.Red;
                         LeftRotate(X.parent);
@@ -340,7 +340,6 @@ namespace Lab3
 
                     if (W.left.color == Color.Black && W.right.color == Color.Black)
                     {
-                        // Case 2
                         W.color = Color.Red;
                         X = X.parent;
                     }
@@ -353,14 +352,13 @@ namespace Lab3
                         W = X.parent.right;
                     }
 
-                    // Case 4
                     W.color = X.parent.color;
                     X.parent.color = Color.Black;
                     W.right.color = Color.Black;
                     LeftRotate(X.parent);
                     X = _rootNode;
                 }
-                else // mirror code from above with "right" & "left" exchanged
+                else
                 {
                     RBNode W = X.parent.left;
 
