@@ -1,6 +1,4 @@
-﻿using System;
-using System.Xml.Linq;
-using static Lab3.ColorEnum;
+﻿using static Lab3.ColorEnum;
 
 namespace Lab3
 {
