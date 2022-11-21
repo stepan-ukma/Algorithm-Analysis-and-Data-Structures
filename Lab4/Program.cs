@@ -1,9 +1,4 @@
-﻿using Lab4;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Lab4
+﻿namespace Lab4
 {
     class Program
     {
@@ -122,8 +117,6 @@ namespace Lab4
             {
                 Console.WriteLine(pe.ToString());
             }
-
-            Console.ReadLine();
         }
     }
 }

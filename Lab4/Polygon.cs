@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Lab4
+﻿namespace Lab4
 {
     class PolygonException : Exception
     {
