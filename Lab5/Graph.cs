@@ -10,7 +10,7 @@
         public Graph(int vertices)
         {
             verticesCount = vertices;
-            adjacencyList = new List<List<int>>();
+            adjacencyList = new List<List<int>>(verticesCount);
 
             for (int i = 0; i < vertices; i++)
                 adjacencyList.Add(new List<int>());
