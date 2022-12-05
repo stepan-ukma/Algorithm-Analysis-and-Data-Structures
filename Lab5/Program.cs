@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Lab5
+﻿namespace Lab5
 {
     class Program
     {

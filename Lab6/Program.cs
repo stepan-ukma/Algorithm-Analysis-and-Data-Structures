@@ -1,8 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Text;
-
-namespace Lab6
+﻿namespace Lab6
 {
     internal class Program
     {
